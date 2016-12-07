@@ -4,7 +4,8 @@ require_relative('./db/sql_runner')
 
 class Artist
 
-  attr_reader :id, :name
+  attr_reader :id 
+  attr_accessor :name
 
   def initialize(options)
     @id = options['id'] unless options['id'].nil?
@@ -42,6 +43,13 @@ class Artist
     db.close()
   end
 
+  def who()
+    sql = "SELECT * from albums WHERE artist_id = #{ @id }"
+    orders = SqlRunner.run(sql)
+    result = orders.map {|order| Albums.new(order)}
+    return result
+  end
+  
   def update()
     db = PG.connect({ dbname: 'music', host: 'localhost' })
     sql = "UPDATE artists SET (name) = ('#{@name}') WHERE id = #{@id}";
@@ -49,11 +57,6 @@ class Artist
     db.close()
   end
 
-  def who()
-    sql = "SELECT * from albums WHERE artist_id = #{ @id }"
-    orders = SqlRunner.run(sql)
-    result = orders.map {|order| Albums.new(order)}
-    return result
-  end
+
 
 end
