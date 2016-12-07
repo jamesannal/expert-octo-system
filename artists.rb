@@ -1,9 +1,10 @@
 require('pg')
 require_relative('./db/sql_runner')
+require_relative('albums')
+
 
 class Artist
 
-  attr_accessor :name
   attr_reader :id
 
   def initialize(options)
@@ -25,6 +26,15 @@ class Artist
     db.close()
     return arts.map { |artists| Artist.new(artists)}
   end
+
+  def self.delete_all()
+    db = PG.connect( { dbname: 'music', host: 'localhost' } )
+    sql = "DELETE FROM artists;"
+    db.exec(sql)
+    db.close()
+  end
+
+
 
 
 end
