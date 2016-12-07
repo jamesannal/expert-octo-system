@@ -7,7 +7,7 @@ CREATE TABLE artists (
   name VARCHAR(255)
 );
 
-CREATE TABLE albumns (
+CREATE TABLE albums (
   id SERIAL8 primary key,
   title VARCHAR(255),
   genre VARCHAR(255)
