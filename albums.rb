@@ -1,30 +1,29 @@
 require('pg')
 require_relative('./db/sql_runner')
-require_relative('artists')
 
 class Albums
 
-  attr_accessor :artist_id, :title, :genre
+  attr_accessor :title, :genre, :artist_id
   attr_reader :id
 
   def initialize(options)
     @id = options['id'] unless options['id'].nil?
     @title = options['title']
     @genre = options['genre']
-    # @artist_id = options['artist_id'].to_i
+    @artist_id = options['artist_id'].to_i
   end
 
   def save()
-    db = PG.connect( { dbname: 'music', host: 'localhost' } )
-    sql = 
+    sql = "INSERT INTO albums 
+    (title, genre, artist_id) 
+    VALUES (
+    '#{title}',
+    '#{genre}',
+    '#{artist_id}'
+      )RETURNING *;
     "
-    INSERT INTO albums 
-    (title, genre) 
-    VALUES 
-    ( '#{title}', '#{genre}')RETURNING *;
-    "
-    @id = db.exec(sql) [0] ['id'].to_i
-    db.close()
+    order = SqlRunner.run(sql).first
+    @id = order['id'].to_i
   end
 
   def self.all()
@@ -42,10 +41,25 @@ class Albums
     db.close()
   end
 
-  # def which()
-  #   sql = "SELECT * from artists WHERE id = #{ @artist_id};"
-  #   artist = SqlRunner.run( sql )[0]
-  #   return Artist.new(artist)
-  # end
+  def delete()
+    db = PG.connect({ dbname: 'music', host: 'localhost' })
+    sql = "DELETE FROM albums WHERE id = #{@id};"
+    db.exec(sql)
+    db.close()
+  end
+
+  def which()
+    sql = "SELECT * from artists WHERE id = #{ @artist_id }"
+    artist = SqlRunner.run(sql).first
+    result = Artist.new(artist)
+    return result    
+  end
+
+  def update()
+    db = PG.connect({ dbname: 'music', host: 'localhost' })
+    sql = "UPDATE albums SET (title, genre, artist_id) = ('#{@title}', '#{@genre}', '#{artist_id}') WHERE id = #{@id}";
+    db.exec(sql)
+    db.close()
+  end
   
 end
