@@ -1,5 +1,5 @@
 require('pg')
-require_relative('./db/sql_runner')
+require_relative('db/sql_runner')
 
 class Albums
 
@@ -19,11 +19,11 @@ class Albums
     VALUES (
     '#{title}',
     '#{genre}',
-    '#{artist_id}'
-      )RETURNING *;
+    #{artist_id})
+    RETURNING *;
     "
-    order = SqlRunner.run(sql).first
-    @id = order['id'].to_i
+    albums = SqlRunner.run(sql).first
+    @id = albums['id'].to_i
   end
 
   def self.all()
@@ -60,6 +60,22 @@ class Albums
     sql = "UPDATE albums SET (title, genre, artist_id) = ('#{@title}', '#{@genre}', '#{artist_id}') WHERE id = #{@id}";
     db.exec(sql)
     db.close()
+  end
+
+
+
+
+
+  def albums
+    sql = "SELECT * FROM albums WHERE artist_id = #{@id};"
+    albums = SqlRunner.run(sql)
+    return albums.map { |album| Album.new(album)}
+  end
+
+  def artist
+    sql = "SELECT * FROM artists WHERE id = #{@artist_id};"
+    artist = SqlRunner.run(sql)
+    return Artist.new(artist)
   end
   
 end

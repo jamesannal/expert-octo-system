@@ -1,5 +1,5 @@
 require('pg')
-require_relative('./db/sql_runner')
+require_relative('db/sql_runner')
 
 
 class Artist
@@ -17,7 +17,8 @@ class Artist
     INSERT INTO artists
      (name) 
      VALUES 
-     ('#{name}') RETURNING *;
+     ('#{name}') 
+     RETURNING *;
      "
      artist = SqlRunner.run( sql ).first
     @id = artist['id'].to_i
@@ -45,8 +46,8 @@ class Artist
 
   def who()
     sql = "SELECT * from albums WHERE artist_id = #{ @id }"
-    orders = SqlRunner.run(sql)
-    result = orders.map {|order| Albums.new(order)}
+    arts = SqlRunner.run(sql)
+    result = arts.map {|artist| Albums.new(artist)}
     return result
   end
   
@@ -57,6 +58,10 @@ class Artist
     db.close()
   end
 
-
+  def self.find( id )
+    sql = "SELECT * FROM artists WHERE id = #{id};"
+    result = SqlRunner.run(sql)[0]
+    return Artist.new( result ) 
+  end
 
 end
